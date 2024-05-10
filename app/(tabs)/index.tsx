@@ -1,18 +1,19 @@
-import { TextInput, View,Image, StyleSheet, Platform,Text } from 'react-native';
+import { ActivityIndicator,FlatList,TextInput, View, Image, StyleSheet, Platform, Text } from 'react-native';
 import LojaItem from '@/components/LojaItem';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
-import {app,db,getFirestore,collection, addDoc} from '../services/firebaseConfig'
-import { useState } from 'react';
+import { app, db, getFirestore, collection, addDoc, getDocs } from '../services/firebaseConfig'
+import { useEffect, useState } from 'react';
 
 export default function HomeScreen() {
-  const[title,setTitle]=useState('')
+  const [title, setTitle] = useState('')
+  const[produtosList,setProdutosList]=useState([])
 
-  const addItem = async() =>{
+  const addItem = async () => {
     try {
       const docRef = await addDoc(collection(db, "produtos"), {
-        title:title,
-        isChecked:false
+        title: title,
+        isChecked: false
       });
       console.log("Document written with ID: ", docRef.id);
       alert("PRODUTO CADASTRADO")
@@ -23,6 +24,26 @@ export default function HomeScreen() {
     }
   }
 
+  const getItem = async() => {
+    let d = []
+    const querySnapshot = await getDocs(collection(db, "produtos"));
+    querySnapshot.forEach((doc) => {
+
+      const produtos = {
+        id:doc.id,
+        title:doc.data().title,
+        isChecked:doc.data().isChecked
+      }
+
+      d.push(produtos)
+    });
+    setProdutosList(d)
+  }
+
+  useEffect(()=>{
+    getItem()
+  },[])
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
@@ -30,14 +51,30 @@ export default function HomeScreen() {
         <Text style={styles.numItem}>3</Text>
         <MaterialIcons name="delete" size={24} color="black" />
       </View>
-      <LojaItem />
-      <LojaItem />
-      <LojaItem />
-      <TextInput 
+
+      
+      {produtosList.length>0?<FlatList 
+        data={produtosList}
+        renderItem={({item})=>{
+          return(
+            <View>
+              <LojaItem 
+                title={item.title}
+                isChecked={item.isChecked}
+                id={item.id}  
+              />
+            </View>
+          )
+        }}
+      />:<ActivityIndicator/>}
+
+      
+
+      <TextInput
         placeholder='Digite o nome do produto'
         style={styles.input}
         value={title}
-        onChangeText={(value)=>setTitle(value)}
+        onChangeText={(value) => setTitle(value)}
         onSubmitEditing={addItem}
       />
     </SafeAreaView>
@@ -45,31 +82,31 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
-  container:{
-    flex:1
+  container: {
+    flex: 1
   },
-  header:{
-    flexDirection:"row",
-    width:"90%",
-    padding:10,
-    borderRadius:10,
-    alignSelf:'center'
+  header: {
+    flexDirection: "row",
+    width: "90%",
+    padding: 10,
+    borderRadius: 10,
+    alignSelf: 'center'
   },
-  heading:{
-    flex:1,
-    fontSize:20
+  heading: {
+    flex: 1,
+    fontSize: 20
   },
-  numItem:{
-    fontSize:20,
-    marginRight:20
+  numItem: {
+    fontSize: 20,
+    marginRight: 20
   },
-  input:{
-    backgroundColor:'lightgrey',
-    padding:10,
-    width:'90%',
-    alignSelf:'center',
-    borderRadius:10,
-    marginTop:'auto',
-    marginBottom:10
+  input: {
+    backgroundColor: 'lightgrey',
+    padding: 10,
+    width: '90%',
+    alignSelf: 'center',
+    borderRadius: 10,
+    marginTop: 'auto',
+    marginBottom: 10
   }
 });
