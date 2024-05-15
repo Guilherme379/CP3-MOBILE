@@ -15,9 +15,10 @@ export default function HomeScreen() {
         title: title,
         isChecked: false
       });
-      console.log("Document written with ID: ", docRef.id);
+      
       alert("PRODUTO CADASTRADO")
       setTitle('')
+      getItem()
 
     } catch (e) {
       console.error("Error adding document: ", e);
@@ -62,6 +63,7 @@ export default function HomeScreen() {
                 title={item.title}
                 isChecked={item.isChecked}
                 id={item.id}  
+                getItem={getItem}
               />
             </View>
           )

@@ -2,7 +2,7 @@ import { Text, View, StyleSheet, Pressable } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { AntDesign, MaterialIcons } from '@expo/vector-icons';
 import { useEffect, useState } from "react";
-import { db,doc, updateDoc } from '../app/services/firebaseConfig'
+import { db,doc, updateDoc,deleteDoc } from '../app/services/firebaseConfig'
 
 
 export default function LojaItem(props) {
@@ -14,6 +14,11 @@ export default function LojaItem(props) {
         await updateDoc(itemRef, {
             isChecked: isChecked
         });
+    }
+
+    const deleteItem = async() =>{
+        await deleteDoc(doc(db, "produtos", props.id));
+        props.getItem()
     }
 
     useEffect(()=>{
@@ -32,7 +37,12 @@ export default function LojaItem(props) {
                 </Pressable>
 
                 <Text style={styles.txt}>{props.title}</Text>
-                <MaterialIcons name="delete" size={24} color="black" />
+                <MaterialIcons 
+                    name="delete" 
+                    size={24} 
+                    color="red"
+                    onPress={deleteItem}
+                 />
             </View>
         </SafeAreaView>
     )
