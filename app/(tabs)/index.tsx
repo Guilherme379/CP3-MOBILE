@@ -2,7 +2,7 @@ import { ActivityIndicator,FlatList,TextInput, View, Image, StyleSheet, Platform
 import LojaItem from '@/components/LojaItem';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
-import { app, db, getFirestore, collection, addDoc, getDocs } from '../services/firebaseConfig'
+import { app, db, getFirestore, collection, addDoc, getDocs, deleteDoc,doc } from '../services/firebaseConfig'
 import { useEffect, useState } from 'react';
 
 export default function HomeScreen() {
@@ -41,6 +41,12 @@ export default function HomeScreen() {
     setProdutosList(d)
   }
 
+  const deleteItemList = async() =>{
+    const querySnapshot = await getDocs(collection(db, "produtos"));
+    querySnapshot.docs.map((item)=>deleteDoc(doc(db,"produtos",item.id)))
+    getItem()
+  }
+
   useEffect(()=>{
     getItem()
   },[])
@@ -49,8 +55,10 @@ export default function HomeScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.heading}>Lista de Produtos</Text>
-        <Text style={styles.numItem}>3</Text>
-        <MaterialIcons name="delete" size={24} color="black" />
+        <Text style={styles.numItem}>{produtosList.length}</Text>
+        <MaterialIcons name="delete" size={24} color="black"
+          onPress={deleteItemList}
+        />
       </View>
 
       
