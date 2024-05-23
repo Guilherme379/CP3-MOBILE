@@ -2,13 +2,14 @@ import { initializeApp } from "firebase/app";
 import { getFirestore,collection, addDoc, getDocs,doc, updateDoc,deleteDoc } from "firebase/firestore";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyD-1a_saOBTZtmHnjj2bhTn0wyv8Wu8a3I",
-  authDomain: "loja-pf-5f896.firebaseapp.com",
-  projectId: "loja-pf-5f896",
-  storageBucket: "loja-pf-5f896.appspot.com",
-  messagingSenderId: "398843861914",
-  appId: "1:398843861914:web:dbedff95572799c7cc7823"
+  apiKey: "AIzaSyCgl_z1nhg-EV54RzyOBO7FZIHFRhHEN3o",
+  authDomain: "checkpoint-c719c.firebaseapp.com",
+  projectId: "checkpoint-c719c",
+  storageBucket: "checkpoint-c719c.appspot.com",
+  messagingSenderId: "908864245508",
+  appId: "1:908864245508:web:21e3e76952c9a291f1ca51"
 };
+
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
