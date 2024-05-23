@@ -1,13 +1,14 @@
-import { ActivityIndicator,FlatList,TextInput, View, Image, StyleSheet, Platform, Text } from 'react-native';
-import LojaItem from '@/components/LojaItem';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, TextInput, FlatList, ActivityIndicator,ImageBackground } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
-import { app, db, getFirestore, collection, addDoc, getDocs, deleteDoc,doc } from '../services/firebaseConfig'
-import { useEffect, useState } from 'react';
+import { app, db, collection, addDoc, getDocs, deleteDoc, doc } from '../services/firebaseConfig';
+import LojaItem from '@/components/LojaItem';
 
 export default function HomeScreen() {
-  const [title, setTitle] = useState('')
-  const[produtosList,setProdutosList]=useState([])
+  const [title, setTitle] = useState('');
+  const [produtosList, setProdutosList] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   const addItem = async () => {
     try {
@@ -16,69 +17,62 @@ export default function HomeScreen() {
         isChecked: false
       });
       
-      alert("PRODUTO CADASTRADO")
-      setTitle('')
-      getItem()
+      alert("PRODUTO CADASTRADO");
+      setTitle('');
+      getItem();
 
     } catch (e) {
       console.error("Error adding document: ", e);
     }
-  }
+  };
 
-  const getItem = async() => {
-    let d = []
+  const getItem = async () => {
+    let d = [];
     const querySnapshot = await getDocs(collection(db, "produtos"));
     querySnapshot.forEach((doc) => {
-
       const produtos = {
-        id:doc.id,
-        title:doc.data().title,
-        isChecked:doc.data().isChecked
-      }
+        id: doc.id,
+        title: doc.data().title,
+        isChecked: doc.data().isChecked
+      };
 
-      d.push(produtos)
+      d.push(produtos);
     });
-    setProdutosList(d)
-  }
+    setProdutosList(d);
+    setIsLoading(false);
+  };
 
-  const deleteItemList = async() =>{
+  const deleteItemList = async () => {
     const querySnapshot = await getDocs(collection(db, "produtos"));
-    querySnapshot.docs.map((item)=>deleteDoc(doc(db,"produtos",item.id)))
-    getItem()
-  }
+    querySnapshot.docs.map((item) => deleteDoc(doc(db, "produtos", item.id)));
+    getItem();
+  };
 
-  useEffect(()=>{
-    getItem()
-  },[])
+  useEffect(() => {
+    getItem();
+  }, []);
 
   return (
-    <SafeAreaView style={styles.container}>
+    <ImageBackground 
+    source={require('../../assets/images/McQueen.jpg')}
+    style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.heading}>Lista de Produtos</Text>
+        <Text style={styles.heading}>Lista de Carros</Text>
         <Text style={styles.numItem}>{produtosList.length}</Text>
-        <MaterialIcons name="delete" size={24} color="black"
-          onPress={deleteItemList}
-        />
+        <MaterialIcons name="delete" size={24} color="black" onPress={deleteItemList} />
       </View>
 
-      
-      {produtosList.length>0?<FlatList 
-        data={produtosList}
-        renderItem={({item})=>{
-          return(
-            <View>
-              <LojaItem 
-                title={item.title}
-                isChecked={item.isChecked}
-                id={item.id}  
-                getItem={getItem}
-              />
-            </View>
-          )
-        }}
-      />:<ActivityIndicator/>}
-
-      
+      {isLoading ? (
+        <ActivityIndicator style={styles.loadingIndicator} size="large" color="#0000ff" />
+      ) : (
+        <FlatList
+          data={produtosList}
+          renderItem={({ item }) => (
+            <LojaItem title={item.title} isChecked={item.isChecked} id={item.id} getItem={getItem} />
+          )}
+          keyExtractor={(item) => item.id}
+        />
+      )}
 
       <TextInput
         placeholder='Digite o nome do produto'
@@ -87,36 +81,37 @@ export default function HomeScreen() {
         onChangeText={(value) => setTitle(value)}
         onSubmitEditing={addItem}
       />
-    </SafeAreaView>
+      </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1
+    flex: 1,
+    padding: 10,
+    backgroundColor: '#e29494',
   },
   header: {
     flexDirection: "row",
-    width: "90%",
-    padding: 10,
-    borderRadius: 10,
-    alignSelf: 'center'
+    alignItems: 'center',
+    marginBottom: 10,
   },
   heading: {
     flex: 1,
-    fontSize: 20
+    fontSize: 20,
+    color: '#ffffff',
   },
   numItem: {
     fontSize: 20,
-    marginRight: 20
+    marginRight: 20,
   },
   input: {
     backgroundColor: 'lightgrey',
     padding: 10,
-    width: '90%',
-    alignSelf: 'center',
     borderRadius: 10,
-    marginTop: 'auto',
-    marginBottom: 10
-  }
+    marginBottom: 10,
+  },
+  loadingIndicator: {
+    marginTop: 20,
+  },
 });
